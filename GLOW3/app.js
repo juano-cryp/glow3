@@ -1,5 +1,5 @@
 // Cambia el número por tu WhatsApp en formato internacional, sin + ni espacios.
-const WHATSAPP_NUMBER = ""; // Ejemplo: 573001234567
+const WHATSAPP_NUMBER = "573196360506"; // Ejemplo: 573001234567
 const products=[
 {id:1,name:"Base Aura",cat:"Rostro",price:42000,stock:8,tone:"Tono 00",img:"https://images.unsplash.com/photo-1631214540553-ff044a9d7c2b?auto=format&fit=crop&w=600&q=80"},
 {id:2,name:"Polvo Banana",cat:"Rostro",price:28000,stock:12,tone:"Banana",img:"https://images.unsplash.com/photo-1599733589046-833a9f4c6e8b?auto=format&fit=crop&w=600&q=80"},
