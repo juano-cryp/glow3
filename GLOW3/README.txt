@@ -1,2 +1,0 @@
-
-Este prototipo tiene productos y precios de demostración. El carrito funciona en el navegador y genera el texto para WhatsApp, pero todavía no está conectado a Firebase. No tiene panel administrativo seguro ni sincronización de inventario/fotos entre dispositivos. Eso se integra en la siguiente fase con Firebase Authentication, Firestore y almacenamiento de imágenes protegido por reglas. No publiques credenciales privadas ni contraseñas en JavaScript.
