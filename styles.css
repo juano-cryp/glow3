@@ -12,3 +12,29 @@ footer{padding:30px 8%;display:flex;justify-content:space-between;align-items:ce
 .login-shade{position:fixed;inset:0;background:#51494ad9;z-index:20;display:grid;place-items:center;padding:18px}.login-shade[hidden]{display:none}.login-card{width:min(420px,100%);background:#fffefa;padding:34px;box-shadow:0 18px 60px #0003;position:relative}.login-card>small{font-size:9px;letter-spacing:2px;color:#a88e91;font-weight:bold}.login-card h2{margin:12px 0 22px}.login-card label{display:block;font-size:11px;color:#76696b;margin:14px 0}.login-card input{display:block;width:100%;padding:13px;margin-top:7px;border:1px solid var(--line);background:white;font:13px 'Fira Code',monospace}.login-card #loginStatus{font-size:11px;color:#a77c83;min-height:18px}.login-card .send{width:100%;cursor:pointer}.load-error{padding:20px;color:#a77c83;background:#fff7f8}
 @media(max-width:900px){.products{grid-template-columns:repeat(3,1fr)}.hero{padding:55px 7%;gap:34px}.hero img{height:340px}}
 @media(max-width:750px){header{height:70px;padding:0 4%;gap:8px}.logo{font-size:21px}nav{display:flex;gap:8px;margin-left:auto;margin-right:8px}nav a:not(#adminToggle){display:none}nav a#adminToggle{display:inline-block;font-size:10px;padding:9px 10px;border:1px solid var(--line);background:#fbf7f5}header button{padding:9px 10px;font-size:10px}.hero{grid-template-columns:1fr;padding:42px 7%;gap:32px}.hero h1{font-size:56px}.hero img{height:280px;box-shadow:10px 10px 0 #f0e5e3}.cats{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card img{height:190px}.info{padding:12px}.info h3{font-size:16px}section:not(.hero){padding:54px 5%}.partner-strip{flex-wrap:wrap;gap:12px;text-align:center;padding:22px 5%!important}.trendy-logo{width:160px;height:68px}.partner-note{border-left:0;border-top:1px solid var(--line);padding:10px 0 0;max-width:none;width:100%}.admin-products{grid-template-columns:1fr}.admin-row{align-items:flex-start;flex-direction:column}.tools{flex-direction:column}.tools input,.tools select{width:100%}footer{flex-wrap:wrap;justify-content:center;text-align:center;padding:26px 5%}.footer-brand{width:100%;align-items:center}}
+
+/* Microinteracciones y movimiento accesible */
+.card,.cat,.hero-copy,.hero>img,.partner-copy,.trendy-logo,.partner-note,.admin-row,.stat-card{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease,box-shadow .25s ease}
+.is-visible{opacity:1!important;transform:translateY(0)!important}
+.card:hover{transform:translateY(-6px) scale(1.012)}
+.card img{transition:transform .45s ease}
+.card:hover img{transform:scale(1.035)}
+.cat{transition:background .25s,border-color .25s,color .25s,transform .25s,box-shadow .25s}
+.cat:hover{transform:translateY(-4px);box-shadow:0 8px 20px #725b6012}
+.add{transition:transform .2s,box-shadow .2s}
+.add:hover{transform:scale(1.12);box-shadow:0 5px 12px #9b7d8233}
+#count.bump{animation:glowBump .38s ease}
+@keyframes glowBump{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
+#drawer{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+#drawer.open{box-shadow:-18px 0 45px #51494a18}
+.glow-toast{position:fixed;left:50%;bottom:28px;z-index:50;transform:translate(-50%,18px);opacity:0;pointer-events:none;background:#80696d;color:#fffdfc;padding:13px 20px;border-radius:30px;font:11px 'Fira Code',monospace;box-shadow:0 8px 25px #51494a22;transition:opacity .25s,transform .25s;max-width:calc(100% - 30px);text-align:center}
+.glow-toast.visible{opacity:1;transform:translate(-50%,0)}
+.whatsapp-float{position:fixed;right:22px;bottom:22px;z-index:4;display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;background:#8f9d8d;padding:9px 12px 9px 16px;border-radius:40px;box-shadow:0 6px 20px #51494a22;transition:transform .2s,box-shadow .2s}
+.whatsapp-float:hover{transform:translateY(-4px);box-shadow:0 10px 25px #51494a33}
+.whatsapp-float span{font-size:10px}.whatsapp-float b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#fff;color:#788b76;font-size:18px}
+.admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}
+.stat-card{background:#fffdfc;border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:10px}
+.stat-card small{font-size:10px;color:var(--muted)}.stat-card b{font-size:25px;color:var(--green)}
+.admin-product-info{display:flex;align-items:center;gap:12px}.admin-thumb{width:52px;height:58px;object-fit:cover;background:var(--cream);border-radius:3px}
+@media(max-width:750px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.whatsapp-float{right:12px;bottom:12px}.whatsapp-float span{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.card,.cat,.hero-copy,.hero>img,.partner-copy,.trendy-logo,.partner-note,.admin-row,.stat-card{opacity:1;transform:none}}
