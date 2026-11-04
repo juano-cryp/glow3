@@ -75,31 +75,3 @@ header{box-shadow:0 5px 22px #51494a08}
 @media(max-width:1000px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:750px){.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card img{height:auto;aspect-ratio:4/4.8;padding:8px}.info{padding:12px}.info h3{font-size:11px;min-height:38px}.info p{font-size:9px;min-height:30px}.catalog-meta{font-size:9px}.cats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.cat{min-height:88px;padding:14px 11px}.show-more{margin-top:24px;width:100%}}
 @media(prefers-reduced-motion:reduce){.show-more:hover{transform:none}}
-
-
-/* Detalle de producto */
-.product-open{display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in;overflow:hidden}
-.product-open img{transition:transform .45s ease}
-.card:hover .product-open img{transform:scale(1.045)}
-.product-title{padding:0;border:0;background:none;text-align:left;color:inherit;font:inherit;font-weight:600;cursor:pointer}
-.product-title:hover,.detail-link:hover{color:#94777d;text-decoration:underline}
-.detail-link{margin-top:12px;padding:0;border:0;background:none;color:#927b80;font:9px 'Fira Code',monospace;cursor:pointer}
-.product-modal[hidden]{display:none}
-.product-modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:22px}
-.product-modal-backdrop{position:absolute;inset:0;background:#30292bc9;backdrop-filter:blur(5px)}
-.product-detail{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:min(850px,100%);max-height:min(680px,90vh);overflow:auto;background:#fffdfc;border-radius:12px;box-shadow:0 25px 80px #0003;animation:detailIn .25s ease}
-.detail-close{position:absolute;right:15px;top:10px;z-index:2;border:0;background:#fffdfce8;color:#80666c;font-size:29px;width:38px;height:38px;border-radius:50%;cursor:pointer}
-.detail-image-wrap{display:grid;place-items:center;min-height:420px;background:#f8f3f2;padding:35px}
-.detail-image-wrap img{width:100%;height:100%;max-height:480px;object-fit:contain}
-.detail-copy{padding:55px 42px;align-self:center}
-.detail-copy>small{font-size:9px;letter-spacing:2px;color:#a88e91;text-transform:uppercase}
-.detail-copy h2{font-size:clamp(23px,3vw,34px);line-height:1.4;margin:16px 0}
-.detail-copy p{font-size:12px;line-height:1.9;color:#8b8080}
-.detail-reference,.detail-stock{font-size:10px;color:#95898a;margin-top:13px}
-.detail-price{font-size:24px;color:#80666c;font-weight:600;margin-top:24px}
-.detail-add{margin-top:24px;border-radius:5px}
-.detail-add:disabled{opacity:.45;cursor:not-allowed}
-body.modal-open{overflow:hidden}
-@keyframes detailIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
-@media(max-width:650px){.product-modal{padding:12px}.product-detail{grid-template-columns:1fr;max-height:92vh}.detail-image-wrap{min-height:0;height:250px;padding:20px}.detail-image-wrap img{max-height:220px}.detail-copy{padding:25px 24px 28px}.detail-copy h2{font-size:22px;margin:10px 0}.detail-price{margin-top:15px}.detail-add{margin-top:18px;width:100%}}
-@media(prefers-reduced-motion:reduce){.product-detail{animation:none}}
