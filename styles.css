@@ -16,3 +16,38 @@ footer{padding:30px 8%;display:flex;justify-content:space-between;align-items:ce
 @media(max-width:950px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:40px 6%}.hero-visual{height:280px}nav{gap:13px}}
 @media(max-width:700px){header{height:auto;min-height:70px;padding:10px 4%;flex-wrap:wrap;gap:8px}.logo{font-size:23px}nav{order:3;width:100%;justify-content:space-around;gap:8px;padding:7px 0 2px}nav a{font-size:9px}.header-actions{margin-left:auto;gap:7px}header button,#adminToggle{font-size:9px;padding:10px 12px}.hero{width:calc(100% - 20px);grid-template-columns:1fr;padding:30px 7%;gap:22px}.hero h1{font-size:46px}.hero p{font-size:13px}.hero-visual{height:220px}.hero-sticker{right:-7px;top:5px;font-size:15px;padding:17px}.partner-strip{flex-wrap:wrap;gap:10px;text-align:center;padding:18px 5%!important}.partner-strip small{width:100%}.trendy-logo{width:100px;height:45px}section:not(.hero){padding:40px 5%}.section-heading{align-items:start}.section-heading>span{display:none}.cats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.cat{min-height:118px;padding:10px 5px;font-size:9px}.cat span{width:68px;height:68px;font-size:23px}.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card img{height:165px;padding:8px}.info{padding:11px}.info h3{font-size:12px;min-height:35px}.info p{font-size:8px}.row b{font-size:11px}.tools{flex-direction:column}.tools input,.tools select{width:100%}.admin-products{grid-template-columns:1fr}.admin-row{align-items:flex-start;flex-direction:column}footer{flex-wrap:wrap;justify-content:center;text-align:center;padding:25px 5%}.footer-brand{width:100%;align-items:center}.whatsapp-float{right:12px;bottom:12px}.whatsapp-float span{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+/* GLOW 3 — motion design suave */
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+@media (prefers-reduced-motion:no-preference){
+  .reveal-on-scroll{opacity:0;transform:translate3d(0,24px,0);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);will-change:opacity,transform}
+  .reveal-on-scroll.revealed{opacity:1;transform:translate3d(0,0,0);will-change:auto}
+  .hero-copy{animation:heroTextIn .9s cubic-bezier(.2,.7,.2,1) both}
+  .hero-visual{animation:heroImageIn 1.05s .12s cubic-bezier(.2,.7,.2,1) both}
+  .hero-sticker{animation:stickerFloat 5s ease-in-out 1.2s infinite}
+  .hero-visual img{transition:transform .8s cubic-bezier(.2,.7,.2,1),filter .8s}
+  .hero-visual:hover img{transform:scale(1.035);filter:saturate(1.06)}
+  .card{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,border-color .35s}
+  .card:hover{transform:translateY(-8px);border-color:#e9b4c3;box-shadow:0 18px 36px #9e52651c}
+  .card img{transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+  .card:hover img{transform:scale(1.045)}
+  .cat{transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s}
+  .cat:hover{transform:translateY(-6px) scale(1.015)}
+  .cta,.add,header button,.upload-btn,.outline-btn,.photo-btn,.send{transition:transform .2s ease,box-shadow .25s,background-color .25s}
+  .cta:hover,.send:hover,.upload-btn:hover{transform:translateY(-2px);box-shadow:0 12px 24px #bd496c35}
+  .add:hover,header button:hover,.photo-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 18px #bd496c35}
+  .add:active,.cta:active,button:active{transform:scale(.97)}
+  nav a{position:relative}
+  nav a:not(#openCartNav)::after{content:"";position:absolute;left:0;right:100%;bottom:-7px;height:2px;background:var(--pink);transition:right .25s}
+  nav a:hover::after{right:0}
+  #drawer{transition:transform .42s cubic-bezier(.2,.8,.2,1)}
+  .cartline{animation:cartLineIn .3s ease both}
+  .glow-toast.visible{animation:toastPop .32s cubic-bezier(.2,.8,.2,1) both}
+}
+@keyframes heroTextIn{from{opacity:0;transform:translate3d(0,22px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes heroImageIn{from{opacity:0;transform:translate3d(22px,0,0) scale(.98)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes stickerFloat{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -7px;rotate:2deg}}
+@keyframes cartLineIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastPop{from{opacity:0;transform:translate(-50%,12px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.reveal-on-scroll{opacity:1!important;transform:none!important;transition:none!important}.hero-copy,.hero-visual,.hero-sticker,.card,.cat{animation:none!important}.card,.card img,.cat,.cta,.add,header button,.upload-btn,.send,#drawer{transition:none!important}}
