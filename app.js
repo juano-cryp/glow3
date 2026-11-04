@@ -1,6 +1,6 @@
 // GLOW 3 — catálogo compartido con Cloudflare D1/R2
 const API_BASE = "https://glow3-api.juan-rico.workers.dev";
-const WHATSAPP_NUMBER = "573196360506";
+const WHATSAPP_NUMBER = "573202615305";
 const TOKEN_KEY = "glow3_admin_token";
 const $ = id => document.getElementById(id);
 const money = n => new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
