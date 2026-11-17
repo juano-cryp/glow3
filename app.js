@@ -20,7 +20,18 @@ function renderProducts(){
  if($("sort").value==="desc")list.sort((a,b)=>b.price-a.price);
  $("products").innerHTML=list.map(p=>'<article class="card"><button class="product-open" type="button" data-detail="'+esc(p.id)+'" aria-label="Ver detalles de '+esc(p.name)+'"><img src="'+esc(p.img)+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.src=\'https://placehold.co/600x600/f8edf0/8f4d60?text=GLOW+3\'"><span class="detail-hint">Ver producto '+(p.img2?'· 2 fotos':'· Detalles')+' ↗</span></button><div class="info"><small>'+esc(p.cat)+" · "+esc(p.ref)+'</small><h3>'+esc(p.name)+'</h3><p>'+esc(p.tone)+'</p><div class="row"><b>'+money(p.price)+'</b><button class="add" data-add="'+esc(p.id)+'" '+(p.stock<=0?"disabled":"")+">"+(p.stock>0?"＋":"–")+'</button></div><div class="stock">'+(p.stock>0?"Disponible · "+p.stock:"Agotado")+"</div></div></article>").join("")||"<p>No hay productos que coincidan con tu búsqueda.</p>";
  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const p=products.find(x=>String(x.id)===b.dataset.add);if(p&&(cart[p.id]||0)<p.stock)cart[p.id]=(cart[p.id]||0)+1;renderCart();showToast(p.name+" agregado a tu bolsa");$("count").classList.remove("bump");void $("count").offsetWidth;$("count").classList.add("bump")});
- document.querySelectorAll("[data-detail]").forEach(b=>b.onclick=()=>openProductDetail(b.dataset.detail));
+ // Delegación de clic: abre la ficha al pulsar la imagen o la zona visual del producto.
+ const productGrid=$("products");
+ if(!productGrid.dataset.detailHandler){
+  productGrid.dataset.detailHandler="1";
+  productGrid.addEventListener("click",event=>{
+   if(event.target.closest("[data-add]"))return;
+   const trigger=event.target.closest("[data-detail]");
+   const card=event.target.closest(".card");
+   const opener=trigger||card?.querySelector("[data-detail]");
+   if(opener)openProductDetail(opener.dataset.detail);
+  });
+ }
 }
 function ensureProductDetail(){
  let modal=$("productDetail");if(modal)return modal;
