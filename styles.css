@@ -69,3 +69,14 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}
 .detail-copy>p{font-size:13px;line-height:1.8;color:#806c73}.detail-price{display:block;margin:18px 0;color:var(--pink-dark);font:700 22px 'Fira Code',monospace}
 .detail-copy .detail-stock{font:11px 'Fira Code',monospace}.photo-actions{display:flex;gap:8px;flex-wrap:wrap}.photo-secondary{background:#fff;color:var(--pink-dark)}
 @media(max-width:700px){.product-open>img{height:165px;padding:8px}.detail-dialog{grid-template-columns:1fr;gap:10px;padding:22px;max-height:94vh}.detail-gallery>img{height:260px}.detail-copy{padding:8px 2px}.detail-copy h2{font-size:22px}.photo-actions{width:100%}.photo-actions .photo-btn{flex:1;text-align:center}}
+
+/* Ajuste de apertura: ficha amplia y fotografía protagonista */
+.product-open{cursor:zoom-in;touch-action:manipulation}
+.product-open>img{pointer-events:none}
+.product-detail{z-index:9999!important}
+.detail-dialog{width:min(1080px,96vw);max-height:94vh;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:34px;padding:clamp(18px,3vw,38px)}
+.detail-gallery>img{height:min(58vh,560px);min-height:320px;cursor:zoom-in}
+.detail-copy{max-width:440px}
+.detail-copy h2{font-size:clamp(24px,3vw,34px)}
+.detail-copy>p{font-size:14px;line-height:1.9}
+@media(max-width:700px){.detail-dialog{width:96vw;grid-template-columns:1fr;gap:12px;padding:18px;max-height:94dvh}.detail-gallery>img{height:38vh;min-height:220px}.detail-copy{max-width:none}.detail-copy>p{font-size:13px}}
