@@ -40,14 +40,26 @@ function ensureProductDetail(){
  document.body.append(modal);modal.querySelectorAll("[data-detail-close]").forEach(el=>el.onclick=()=>modal.hidden=true);
  document.addEventListener("keydown",e=>{if(e.key==="Escape")modal.hidden=true});return modal;
 }
+function ensureImageLightbox(){
+ let box=$("imageLightbox");if(box)return box;
+ box=document.createElement("div");box.id="imageLightbox";box.className="image-lightbox";box.hidden=true;
+ box.innerHTML='<button type="button" class="lightbox-close" aria-label="Cerrar imagen">×</button><img id="lightboxImage" alt="">';
+ document.body.append(box);
+ box.addEventListener("click",e=>{if(e.target===box||e.target.closest(".lightbox-close"))box.hidden=true});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape")box.hidden=true});
+ return box;
+}
+function openImageLightbox(src,alt){
+ const box=ensureImageLightbox(),img=$("lightboxImage");img.src=src;img.alt=alt||"Imagen ampliada del producto";box.hidden=false;
+}
 function openProductDetail(id){
  const p=products.find(x=>String(x.id)===String(id));if(!p)return;
  const modal=ensureProductDetail(),images=[p.img,...(p.img2?[p.img2]:[])];
  $("detailReference").textContent="GLOW 3 · "+p.ref;$("detailTitle").textContent=p.name;
- $("detailDescription").textContent=p.description||"Consulta con nuestro equipo para conocer más detalles de este producto.";
+ $("detailDescription").textContent=p.description||"Pronto agregaremos más información de este producto.";
  $("detailPrice").textContent=money(p.price);$("detailStock").textContent=p.stock>0?"Disponible · "+p.stock+" unidades":"Agotado";
  $("detailAdd").disabled=p.stock<=0;$("detailAdd").onclick=()=>{if((cart[p.id]||0)<p.stock){cart[p.id]=(cart[p.id]||0)+1;renderCart();showToast(p.name+" agregado a tu bolsa");modal.hidden=true;drawer(true)}};
- const main=$("detailMainImage");main.src=images[0];main.alt=p.name;
+ const main=$("detailMainImage");main.src=images[0];main.alt=p.name;main.onclick=()=>openImageLightbox(main.src,main.alt);main.title="Haz clic para ampliar la imagen";
  $("detailThumbs").innerHTML=images.map((src,i)=>'<button type="button" class="detail-thumb '+(i===0?'active':'')+'" data-image-index="'+i+'" aria-label="Ver fotografía '+(i+1)+'"><img src="'+esc(src)+'" alt=""></button>').join("");
  $("detailThumbs").querySelectorAll("[data-image-index]").forEach(btn=>btn.onclick=()=>{main.src=images[Number(btn.dataset.imageIndex)];$("detailThumbs").querySelectorAll(".detail-thumb").forEach(x=>x.classList.toggle("active",x===btn))});
  modal.hidden=false;
@@ -65,7 +77,7 @@ function parseExcel(file){
   const reader=new FileReader();reader.onerror=()=>reject(new Error("No se pudo leer el archivo."));
   reader.onload=e=>{try{
    const wb=XLSX.read(e.target.result,{type:"array"}),rowsOut=[],seen=new Set();
-   const aliases={reference:["referencia","referencia producto","ref","codigo","codigo producto"],stock:["stock","existencia","inventario","cantidad"],name:["nombre","producto","nombre producto","descripcion"],detail:["detalle","descripcion corta","descripcion del producto","caracteristicas"],price:["precio","valor","precio venta","precio unitario"]};
+   const aliases={reference:["referencia","referencia producto","ref","codigo","codigo producto"],stock:["stock","existencia","inventario","cantidad"],name:["nombre","producto","nombre producto","descripcion"],detail:["detalle","detalle del producto","descripcion detallada","descripción detallada","beneficios","beneficios del producto","caracteristicas","caracteristicas del producto","uso y beneficios"],price:["precio","valor","precio venta","precio unitario"]};
    const findColumn=(headers,names)=>headers.findIndex(h=>names.some(n=>h===n||h.includes(n)));
    for(const sheet of wb.SheetNames){
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:""});let columns=null;
