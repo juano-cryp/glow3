@@ -49,63 +49,33 @@ function openAdmin(e){if(e)e.preventDefault();$("adminPanel").hidden=true;showLo
 function logout(){adminToken="";sessionStorage.removeItem(TOKEN_KEY);$("adminPanel").hidden=true;closeLogin()}
 async function login(e){e.preventDefault();$("loginStatus").textContent="Verificando acceso…";const email=$("adminEmail").value.trim(),password=$("adminPassword").value;try{const data=await api("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});adminToken=data.token;if(!adminToken)throw new Error("El servidor no devolvió un token de acceso.");sessionStorage.setItem(TOKEN_KEY,adminToken);$("adminPassword").value="";closeLogin();$("adminPanel").hidden=false;$("adminPanel").scrollIntoView({behavior:"smooth"});renderAdminProducts()}catch(err){$("loginStatus").textContent=err.message||"No fue posible iniciar sesión."} }
 function parseExcel(file){
-  if(!window.XLSX) throw new Error("No se pudo cargar el lector de Excel. Recarga la página e inténtalo de nuevo.");
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=()=>reject(new Error("No se pudo leer el archivo."));
-    reader.onload=e=>{
-      try{
-        const wb=XLSX.read(e.target.result,{type:"array"});
-        const rowsOut=[];
-        const seen=new Set();
-        const aliases={
-          reference:["referencia","referencia producto","ref","codigo","codigo producto"],
-          stock:["stock","existencia","inventario","cantidad"],
-          description:["descripcion","nombre","producto","nombre producto"],
-          price:["precio","valor","precio venta","precio unitario"]
-        };
-        const findColumn=(headers,names)=>headers.findIndex(h=>names.some(n=>h===n||h.includes(n)));
-        for(const sheet of wb.SheetNames){
-          const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:""});
-          let columns=null;
-          for(const row of rows){
-            const cells=row.map(v=>String(v??"").trim());
-            if(cells.every(v=>!v)) continue;
-            const headers=cells.map(normalize);
-            const ri=findColumn(headers,aliases.reference);
-            const si=findColumn(headers,aliases.stock);
-            const di=findColumn(headers,aliases.description);
-            if(ri>=0&&si>=0&&di>=0){
-              columns={ri,si,di,pi:findColumn(headers,aliases.price)};
-              continue;
-            }
-            if(!columns) continue;
-            const reference=cells[columns.ri];
-            const description=cells[columns.di];
-            if(!reference||!description) continue;
-            const stockText=cells[columns.si].replace(/[^0-9-]/g,"");
-            const stock=Number(stockText);
-            if(!Number.isInteger(stock)||stock<0) throw new Error("Stock inválido para la referencia "+reference+". Usa un número entero igual o mayor que cero.");
-            let price=null;
-            if(columns.pi>=0){
-              const raw=cells[columns.pi].replace(/[^0-9,.-]/g,"").trim();
-              if(raw){
-                const normalizedPrice=raw.includes(",")?raw.replace(/\./g,"").replace(",","."):raw.replace(/\.(?=\d{3}(?:\D|$))/g,"");
-                price=Number(normalizedPrice);
-                if(!Number.isFinite(price)||price<0) throw new Error("Precio inválido para la referencia "+reference+".");
-              }
-            }
-            const key=normalize(reference);
-            if(seen.has(key)) throw new Error("La referencia "+reference+" está repetida en el Excel. Deja una sola fila por referencia.");
-            seen.add(key);
-            rowsOut.push({reference,name:description,description,stock,price});
-          }
-        }
-        resolve(rowsOut);
-      }catch(err){reject(err)}
-    };
-    reader.readAsArrayBuffer(file);
-  });
+ if(!window.XLSX)throw new Error("No se pudo cargar el lector de Excel. Recarga la página e inténtalo de nuevo.");
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();reader.onerror=()=>reject(new Error("No se pudo leer el archivo."));
+  reader.onload=e=>{try{
+   const wb=XLSX.read(e.target.result,{type:"array"}),rowsOut=[],seen=new Set();
+   const aliases={reference:["referencia","referencia producto","ref","codigo","codigo producto"],stock:["stock","existencia","inventario","cantidad"],name:["nombre","producto","nombre producto","descripcion"],detail:["detalle","descripcion corta","descripcion del producto","caracteristicas"],price:["precio","valor","precio venta","precio unitario"]};
+   const findColumn=(headers,names)=>headers.findIndex(h=>names.some(n=>h===n||h.includes(n)));
+   for(const sheet of wb.SheetNames){
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:""});let columns=null;
+    for(const row of rows){
+     const cells=row.map(v=>String(v??"").trim());if(cells.every(v=>!v))continue;
+     const headers=cells.map(normalize),ri=findColumn(headers,aliases.reference),si=findColumn(headers,aliases.stock),ni=findColumn(headers,aliases.name);
+     if(ri>=0&&si>=0&&ni>=0){columns={ri,si,ni,di:findColumn(headers,aliases.detail),pi:findColumn(headers,aliases.price)};continue}
+     if(!columns)continue;
+     const reference=cells[columns.ri],name=cells[columns.ni];if(!reference||!name)continue;
+     const stock=Number(cells[columns.si].replace(/[^0-9-]/g,""));
+     if(!Number.isInteger(stock)||stock<0)throw new Error("Stock inválido para la referencia "+reference+". Usa un número entero igual o mayor que cero.");
+     let price=null;if(columns.pi>=0){const raw=cells[columns.pi].replace(/[^0-9,.-]/g,"").trim();if(raw){const normalizedPrice=raw.includes(",")?raw.replace(/\./g,"").replace(",","."):raw.replace(/\.(?=\d{3}(?:\D|$))/g,"");price=Number(normalizedPrice);if(!Number.isFinite(price)||price<0)throw new Error("Precio inválido para la referencia "+reference+".")}}
+     const key=normalize(reference);if(seen.has(key))throw new Error("La referencia "+reference+" está repetida en el Excel. Deja una sola fila por referencia.");seen.add(key);
+     const detail=columns.di>=0?cells[columns.di]:"";
+     rowsOut.push({reference,name,description:detail||name,stock,price});
+    }
+   }
+   resolve(rowsOut);
+  }catch(err){reject(err)}};
+  reader.readAsArrayBuffer(file);
+ });
 }
 async function importExcel(file){
   if(!file)return;
