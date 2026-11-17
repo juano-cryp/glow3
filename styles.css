@@ -80,3 +80,12 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}
 .detail-copy h2{font-size:clamp(24px,3vw,34px)}
 .detail-copy>p{font-size:14px;line-height:1.9}
 @media(max-width:700px){.detail-dialog{width:96vw;grid-template-columns:1fr;gap:12px;padding:18px;max-height:94dvh}.detail-gallery>img{height:38vh;min-height:220px}.detail-copy{max-width:none}.detail-copy>p{font-size:13px}}
+
+/* Visor de imagen a pantalla completa (lightbox) */
+.detail-gallery>img{cursor:zoom-in}
+.image-lightbox[hidden]{display:none}
+.image-lightbox{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:4vh 4vw;background:rgba(8,7,9,.96);backdrop-filter:blur(8px);cursor:zoom-out}
+.image-lightbox>img{display:block;max-width:92vw;max-height:90vh;width:auto;height:auto;object-fit:contain;box-shadow:0 12px 70px #0009;cursor:default}
+.lightbox-close{position:absolute;top:18px;right:24px;width:48px;height:48px;border:1px solid #ffffff80;border-radius:50%;background:#1b171bd9;color:white;font-size:32px;line-height:1;cursor:pointer;z-index:1}
+.lightbox-close:hover{background:#a04464}
+@media(max-width:700px){.image-lightbox{padding:12px}.image-lightbox>img{max-width:96vw;max-height:84vh}.lightbox-close{top:12px;right:12px;width:42px;height:42px}}
