@@ -21,8 +21,92 @@ function closeLogin(){$("loginShade").hidden=true}
 function openAdmin(e){if(e)e.preventDefault();$("adminPanel").hidden=true;showLogin()}
 function logout(){adminToken="";sessionStorage.removeItem(TOKEN_KEY);$("adminPanel").hidden=true;closeLogin()}
 async function login(e){e.preventDefault();$("loginStatus").textContent="Verificando acceso…";const email=$("adminEmail").value.trim(),password=$("adminPassword").value;try{const data=await api("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});adminToken=data.token;if(!adminToken)throw new Error("El servidor no devolvió un token de acceso.");sessionStorage.setItem(TOKEN_KEY,adminToken);$("adminPassword").value="";closeLogin();$("adminPanel").hidden=false;$("adminPanel").scrollIntoView({behavior:"smooth"});renderAdminProducts()}catch(err){$("loginStatus").textContent=err.message||"No fue posible iniciar sesión."} }
-function parseExcel(file){if(!window.XLSX)throw new Error("No se pudo cargar el lector de Excel. Recarga la página e inténtalo de nuevo.");return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error("No se pudo leer el archivo."));reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:"array"});const rowsOut=[];let categoryName="Otros";for(const sheet of wb.SheetNames){const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:""});let headers=[];for(const row of rows){const cells=row.map(v=>String(v??"").trim());if(cells.every(v=>!v))continue;const normalized=cells.map(normalize);if(normalized.some(v=>v==="referencia")&&normalized.some(v=>v==="stock")){headers=normalized;continue}if(cells.filter(Boolean).length===1){categoryName=cells.find(Boolean);continue}if(!headers.length)continue;const idx=k=>headers.findIndex(h=>h===k||h.includes(k));const ri=idx("referencia"),si=idx("stock"),di=idx("descripcion"),pi=idx("precio");if(ri<0||si<0||di<0)continue;const reference=cells[ri],description=cells[di];if(!reference||!description)continue;const price=pi>=0?Number(String(cells[pi]).replace(/[^0-9,.-]/g,"").replace(/\./g,"").replace(",", ".")):null;rowsOut.push({reference,name:description,description,category:categoryName,stock:Math.max(0,parseInt(cells[si],10)||0),price:Number.isFinite(price)&&price!==null?price:null})}}resolve(rowsOut)}catch(err){reject(err)}};reader.readAsArrayBuffer(file)})}
-async function importExcel(file){if(!file)return;const status=$("importStatus");status.textContent="Leyendo y validando el Excel…";try{const rows=await parseExcel(file);if(!rows.length)throw new Error("No encontré productos. Revisa los encabezados REFERENCIA, STOCK y DESCRIPCION.");const old=products;const payload=[];const missing=[];for(const row of rows){const previous=old.find(p=>normalize(p.ref)===normalize(row.reference)&&normalize(p.name)===normalize(row.name)&&normalize(p.cat)===normalize(row.category));const price=row.price!==null?row.price:previous?.price;if(price===undefined||price===null){missing.push(row.reference+" — "+row.name);continue}payload.push({...row,price})}if(missing.length)throw new Error("Hay productos nuevos sin precio. Agrega la columna PRECIO al Excel para: "+missing.slice(0,4).join("; ")+(missing.length>4?"…":""));if(payload.length>500)throw new Error("El archivo supera el límite de 500 productos.");const result=await api("/api/admin/import",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({products:payload})});await loadProducts();status.textContent="Importación completada: "+payload.length+" productos enviados al catálogo compartido."}catch(err){status.textContent=err.message||"No se pudo importar el archivo."}finally{$("excelFile").value=""}}
+function parseExcel(file){
+  if(!window.XLSX) throw new Error("No se pudo cargar el lector de Excel. Recarga la página e inténtalo de nuevo.");
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("No se pudo leer el archivo."));
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:"array"});
+        const rowsOut=[];
+        const seen=new Set();
+        const aliases={
+          reference:["referencia","referencia producto","ref","codigo","codigo producto"],
+          stock:["stock","existencia","inventario","cantidad"],
+          description:["descripcion","nombre","producto","nombre producto"],
+          price:["precio","valor","precio venta","precio unitario"]
+        };
+        const findColumn=(headers,names)=>headers.findIndex(h=>names.some(n=>h===n||h.includes(n)));
+        for(const sheet of wb.SheetNames){
+          const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:""});
+          let columns=null;
+          for(const row of rows){
+            const cells=row.map(v=>String(v??"").trim());
+            if(cells.every(v=>!v)) continue;
+            const headers=cells.map(normalize);
+            const ri=findColumn(headers,aliases.reference);
+            const si=findColumn(headers,aliases.stock);
+            const di=findColumn(headers,aliases.description);
+            if(ri>=0&&si>=0&&di>=0){
+              columns={ri,si,di,pi:findColumn(headers,aliases.price)};
+              continue;
+            }
+            if(!columns) continue;
+            const reference=cells[columns.ri];
+            const description=cells[columns.di];
+            if(!reference||!description) continue;
+            const stockText=cells[columns.si].replace(/[^0-9-]/g,"");
+            const stock=Number(stockText);
+            if(!Number.isInteger(stock)||stock<0) throw new Error("Stock inválido para la referencia "+reference+". Usa un número entero igual o mayor que cero.");
+            let price=null;
+            if(columns.pi>=0){
+              const raw=cells[columns.pi].replace(/[^0-9,.-]/g,"").trim();
+              if(raw){
+                const normalizedPrice=raw.includes(",")?raw.replace(/\./g,"").replace(",","."):raw.replace(/\.(?=\d{3}(?:\D|$))/g,"");
+                price=Number(normalizedPrice);
+                if(!Number.isFinite(price)||price<0) throw new Error("Precio inválido para la referencia "+reference+".");
+              }
+            }
+            const key=normalize(reference);
+            if(seen.has(key)) throw new Error("La referencia "+reference+" está repetida en el Excel. Deja una sola fila por referencia.");
+            seen.add(key);
+            rowsOut.push({reference,name:description,description,stock,price});
+          }
+        }
+        resolve(rowsOut);
+      }catch(err){reject(err)}
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+async function importExcel(file){
+  if(!file)return;
+  const status=$("importStatus");
+  status.textContent="Leyendo y validando el Excel…";
+  try{
+    const rows=await parseExcel(file);
+    if(!rows.length) throw new Error("No encontré productos. Usa los encabezados REFERENCIA, DESCRIPCION, STOCK y PRECIO.");
+    const payload=[];
+    const missing=[];
+    for(const row of rows){
+      const previous=products.find(p=>normalize(p.ref)===normalize(row.reference));
+      const price=row.price!==null?row.price:previous?.price;
+      if(price===undefined||price===null){
+        missing.push(row.reference+" — "+row.name);
+        continue;
+      }
+      payload.push({...row,price,category:previous?.cat||"Otros"});
+    }
+    if(missing.length) throw new Error("Falta el precio para productos nuevos. Completa la columna PRECIO en: "+missing.slice(0,4).join("; ")+(missing.length>4?"…":""));
+    if(payload.length>500) throw new Error("El archivo supera el límite de 500 productos.");
+    const result=await api("/api/admin/import",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({products:payload})});
+    await loadProducts();
+    status.textContent="Importación completada: "+(result.nuevos??0)+" nuevos y "+(result.actualizados??0)+" actualizados. Las fotografías existentes se conservaron.";
+  }catch(err){
+    status.textContent=err.message||"No se pudo importar el archivo.";
+  }finally{$("excelFile").value=""}
+}
 function renderAdminProducts(){if(!$("adminProducts"))return;$("adminProducts").innerHTML=products.map(p=>'<div class="admin-row"><div><b>'+esc(p.name)+'</b><small>'+esc(p.ref)+" · "+esc(p.cat)+" · Stock "+p.stock+" · "+money(p.price)+'</small></div><label class="photo-btn">Cambiar foto<input type="file" accept="image/jpeg,image/png,image/webp" data-photo="'+esc(p.id)+'" hidden></label></div>').join("");document.querySelectorAll("[data-photo]").forEach(input=>input.onchange=async()=>{const file=input.files[0],p=products.find(x=>String(x.id)===input.dataset.photo);if(!file||!p)return;if(file.size>5*1024*1024){alert("La imagen debe pesar máximo 5 MB.");return}const form=new FormData();form.append("file",file);form.append("reference",p.ref);form.append("name",p.name);form.append("category",p.cat);try{await api("/api/admin/upload-image",{method:"POST",body:form});await loadProducts();$("importStatus").textContent="Fotografía actualizada correctamente para "+p.name+"."}catch(err){$("importStatus").textContent=err.message||"No se pudo subir la imagen."}finally{input.value=""}})}
 $("openCart").onclick=()=>drawer(true);if($("openCartNav"))$("openCartNav").onclick=e=>{e.preventDefault();drawer(true)};$("close").onclick=()=>drawer(false);$("shade").onclick=()=>drawer(false);$("search").oninput=renderProducts;$("sort").onchange=renderProducts;$("adminToggle").onclick=openAdmin;$("adminLogin").onsubmit=login;$("loginClose").onclick=closeLogin;$("loginShade").onclick=e=>{if(e.target===$("loginShade"))closeLogin()};$("importExcelBtn").onclick=()=>$("excelFile").click();$("excelFile").onchange=e=>importExcel(e.target.files[0]);$("refreshAdmin").onclick=()=>{loadProducts().catch(err=>$("importStatus").textContent=err.message)};$("adminLogout").onclick=logout;
 $("send").onclick=()=>{const entries=Object.entries(cart);if(!entries.length)return alert("Agrega productos a tu bolsa.");let total=0;const lines=entries.map(([id,n])=>{const p=products.find(x=>String(x.id)===id);if(!p)return "";total+=p.price*n;return "• "+p.name+" ("+(p.tone||p.ref)+") x"+n+" — "+money(p.price*n)}).filter(Boolean);const msg="Hola, quiero hacer este pedido de GLOW 3:\n\n"+lines.join("\n")+"\n\nTotal: "+money(total)+"\n¿Me confirman disponibilidad y entrega?";window.open("https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(msg),"_blank")};
