@@ -89,3 +89,13 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}
 .lightbox-close{position:absolute;top:18px;right:24px;width:48px;height:48px;border:1px solid #ffffff80;border-radius:50%;background:#1b171bd9;color:white;font-size:32px;line-height:1;cursor:pointer;z-index:1}
 .lightbox-close:hover{background:#a04464}
 @media(max-width:700px){.image-lightbox{padding:12px}.image-lightbox>img{max-width:96vw;max-height:84vh}.lightbox-close{top:12px;right:12px;width:42px;height:42px}}
+
+
+/* Selector animado de tonos y variantes */
+.tone-picker{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 10px}
+.tone-chip{border:1px solid #ead0d9;background:#fff8fa;color:#805d69;border-radius:20px;padding:7px 11px;font:10px 'Fira Code',monospace;cursor:pointer;transition:transform .2s,background .2s,border-color .2s,color .2s}
+.tone-chip:hover{transform:translateY(-2px);border-color:#d98da5}
+.tone-chip.active{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 4px 12px #bd496c25}
+.detail-tone-picker{margin:12px 0}
+.detail-tone-picker>small{display:block;margin-bottom:7px;color:#92727e;font:10px 'Fira Code',monospace}
+.variant-description{min-height:15px}
